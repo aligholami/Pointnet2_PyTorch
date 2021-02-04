@@ -1,0 +1,3 @@
+task_data_model:
+    class: pointnet2.models.Indoor3D.PointNet2SemSegSSG
+    name: sem-indoor3d-ssg

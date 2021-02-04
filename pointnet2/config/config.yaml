@@ -1,7 +1,9 @@
+#  defaults must be a list because composition is order sensitive
 defaults:
     - task: cls
+    - data: scannet3d
     - model: ssg
-    - task_model: ${defaults.0.task}-${defaults.1.model}
+    - task_data_model: ${defaults.0.task}-${defaults.1.data}-${defaults.2.model}
 
 hydra:
   run:
@@ -12,7 +14,7 @@ gpus:
 
 optimizer: ???
 
-task_model: ???
+task_data_model: ???
 
 model: ???
 

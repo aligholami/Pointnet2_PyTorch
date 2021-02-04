@@ -1,0 +1,3 @@
+task_data_model:
+    class: pointnet2.models.ModelNet40.PointNet2ClassificationSSG
+    name: cls-modelnet-ssg

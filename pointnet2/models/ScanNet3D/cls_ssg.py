@@ -8,53 +8,12 @@ from torch.utils.data import DataLoader, DistributedSampler
 from torchvision import transforms
 
 import pointnet2.data.data_utils as d_utils
-from pointnet2.data.ModelNet40Loader import ModelNet40Cls
+from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
+from pointnet2.models.common.pointnet2_ssg_cls import *
 
-
-def set_bn_momentum_default(bn_momentum):
-    def fn(m):
-        if isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)):
-            m.momentum = bn_momentum
-
-    return fn
-
-
-class BNMomentumScheduler(lr_sched.LambdaLR):
-    def __init__(self, model, bn_lambda, last_epoch=-1, setter=set_bn_momentum_default):
-        if not isinstance(model, nn.Module):
-            raise RuntimeError(
-                "Class '{}' is not a PyTorch nn Module".format(type(model)._name_)
-            )
-
-        self.model = model
-        self.setter = setter
-        self.lmbd = bn_lambda
-
-        self.step(last_epoch + 1)
-        self.last_epoch = last_epoch
-
-    def step(self, epoch=None):
-        if epoch is None:
-            epoch = self.last_epoch + 1
-
-        self.last_epoch = epoch
-        self.model.apply(self.setter(self.lmbd(epoch)))
-
-    def state_dict(self):
-        return dict(last_epoch=self.last_epoch)
-
-    def load_state_dict(self, state):
-        self.last_epoch = state["last_epoch"]
-        self.step(self.last_epoch)
-
-
-lr_clip = 1e-5
-bnm_clip = 1e-2
-
-
-class PointNet2ClassificationSSG(pl.LightningModule):
+class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
     def __init__(self, hparams):
-        super().__init__()
+        super().__init__(hparams=hparams)
 
         self.hparams = hparams
 

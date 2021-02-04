@@ -1,0 +1,1 @@
+from .cls_ssg import ScanNet3DPointNet2ClassificationSSG
