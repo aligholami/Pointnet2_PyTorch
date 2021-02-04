@@ -6,6 +6,7 @@ import torch.optim.lr_scheduler as lr_sched
 from pointnet2_ops.pointnet2_modules import PointnetFPModule, PointnetSAModule
 from torch.utils.data import DataLoader, DistributedSampler
 from torchvision import transforms
+import json
 
 import pointnet2.data.data_utils as d_utils
 from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
@@ -117,6 +118,14 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
 
         return reduced_outputs
 
+    def get_scene_list(ds_path):
+        all_samples = json.load(open(ds_path))
+        scene_ids = []
+        for sample in all_samples:
+            scene_ids.append(sample['scene_id'])
+
+        return list(set(scene_ids))
+
     def configure_optimizers(self):
         lr_lbmd = lambda _: max(
             self.hparams["optimizer.lr_decay"]
@@ -165,11 +174,30 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
             ]
         )
 
-        self.train_dset = ModelNet40Cls(
-            self.hparams["num_points"], transforms=train_transforms, train=True
+        self.train_dset = ScanNet3DDataset(
+                hparams=self.hparams, 
+                train='train',
+                scene_list=self.get_scene_list(self.hparams['path.scannet_train_json']),
+                transforms=train_transforms, 
+                num_classes=21, 
+                is_weighting=True,
+                npoints=8192,
+                use_multiview=False,
+                use_color=False,
+                use_normal=False
         )
-        self.val_dset = ModelNet40Cls(
-            self.hparams["num_points"], transforms=None, train=False
+
+        self.val_dset = ScanNet3DDataset(
+                hparams=self.hparams, 
+                train='val',
+                scene_list=self.get_scene_list(self.hparams['path.scannet_val_json']),
+                transforms=None, 
+                num_classes=21,
+                is_weighting=True,
+                npoints=8192,
+                use_multiview=False,
+                use_color=False,
+                use_normal=False
         )
 
     def _build_dataloader(self, dset, mode):

@@ -1,2 +1,6 @@
 paths:
     no_where: '/local-scratch/nowhere'
+    train_split_json: '/local-scratch/'
+    val_split_json: '/local-scratch/'
+    multiview_h5py: '/local-scratch/'
+    scannetv2_npy: '/local-scrath/{}'
