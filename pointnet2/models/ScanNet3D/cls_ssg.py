@@ -14,10 +14,7 @@ from pointnet2.models.common.pointnet2_ssg_cls import *
 
 class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
     def __init__(self, hparams):
-        super().__init__(hparams=hparams)
-
         self.hparams = hparams
-
         self._build_model()
 
     def _build_model(self):
