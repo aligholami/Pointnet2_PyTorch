@@ -73,8 +73,6 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
                 Each point in the point-cloud MUST
                 be formated as (x, y, z, features...)
         """
-        print("Im here!!!!!!!")
-        exit(0)
         xyz, features = self._break_up_pc(pointcloud)
 
         for module in self.SA_modules:
@@ -83,7 +81,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
         return self.fc_layer(features.squeeze(-1))
 
     def training_step(self, batch, batch_idx):
-        pc, labels = batch
+        pc, labels, _, _ = batch
 
         logits = self.forward(pc)
         loss = F.cross_entropy(logits, labels)
@@ -95,8 +93,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
         return dict(loss=loss, log=log, progress_bar=dict(train_acc=acc))
 
     def validation_step(self, batch, batch_idx):
-        pc, labels = batch
-
+        pc, labels, _, _ = batch
         logits = self.forward(pc)
         loss = F.cross_entropy(logits, labels)
         acc = (torch.argmax(logits, dim=1) == labels).float().mean()

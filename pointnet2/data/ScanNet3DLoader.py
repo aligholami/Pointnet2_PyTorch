@@ -18,8 +18,8 @@ class ScanNet3DDataset():
         self.use_color = use_color
         self.use_normal = use_normal
         self.chunk_data = {} # init in generate_chunks()
-
         self._prepare_weights()
+        self.generate_chunks()
 
     def _prepare_weights(self):
         self.scene_data = {}
@@ -139,7 +139,7 @@ class ScanNet3DDataset():
             chunk = chunk[choices]
             self.chunk_data[scene_id] = chunk
             
-        print("done!\n")
+        print("generated chunks!\n")
 
 class ScannetDatasetWholeScene():
     def __init__(self, hparams, scene_list, num_classes=21, npoints=8192, is_weighting=True, use_color=False, use_normal=False, use_multiview=False):

@@ -11,8 +11,6 @@ torch.backends.cudnn.benchmark = True
 
 @hydra.main("config/config.yaml")
 def main(cfg):
-    print(cfg)
-    exit(0)
     model = hydra.utils.instantiate(cfg.task_data_model, hydra_params_to_dotdict(cfg))
     early_stop_callback = pl.callbacks.EarlyStopping(patience=5)
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
