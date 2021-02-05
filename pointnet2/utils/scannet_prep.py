@@ -106,6 +106,7 @@ def main(cfg):
             np.save(out_filename, data)
 
         except Exception as e:
+            print(e)
             print(scene_id+'ERROR!!')
 
     print("done!")
