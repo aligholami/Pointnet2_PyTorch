@@ -1,6 +1,31 @@
 paths:
-    no_where: '/local-scratch/nowhere'
-    train_split_json: '/local-scratch/'
-    val_split_json: '/local-scratch/'
-    multiview_h5py: '/local-scratch/'
-    scannetv2_npy: '/local-scrath/{}'
+    train_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_train.json'
+    val_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_val.json'
+    scannet_scans_dir: '/datasets/released/scannet/public/v2/scans'
+    scannet_v2_labels_tsv: '/datasets/released/scannet/public/v2/scannet-labels.combined.tsv'
+    scannet_preped: '/local-scratch/kepler/resources/preped_scenes'
+    scannetv2_npy: '/local-scratch/kepler/resources/preped_scenes/{}.npy'
+
+labels:
+    nyu_40: [
+        'floor', 
+        'wall', 
+        'cabinet', 
+        'bed', 
+        'chair', 
+        'sofa', 
+        'table', 
+        'door', 
+        'window', 
+        'bookshelf', 
+        'picture', 
+        'counter', 
+        'desk', 
+        'curtain', 
+        'refrigerator', 
+        'bathtub', 
+        'shower curtain', 
+        'toilet', 
+        'sink', 
+        'otherprop'
+    ]

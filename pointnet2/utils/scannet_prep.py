@@ -1,18 +1,30 @@
-from pointnet2.utils.scannet import g_label_names, g_raw2scannet
+from pointnet2.utils.common import *
 from pointnet2.utils.ptc import read_ply_xyzrgbnormal
 import numpy as np
-import time
+import hydra
 import json
 import os
 
-CLASS_NAMES = g_label_names
-RAW2SCANNET = g_raw2scannet
-NUM_MAX_PTS = 100000
+def get_raw2scannet_label_map(hparams):
+    lines = [line.rstrip() for line in open(hparams['paths.scannet_v2_labels_tsv'])]
+    lines = lines[1:]
+    raw2scannet = {}
+    for i in range(len(lines)):
+        label_classes_set = set(hparams['labels.nyu_40'])
+        elements = lines[i].split('\t')
+        # raw_name = elements[0]
+        # nyu40_name = elements[6]
+        raw_name = elements[1]
+        nyu40_name = elements[7]
+        if nyu40_name not in label_classes_set:
+            raw2scannet[raw_name] = 'otherprop'
+        else:
+            raw2scannet[raw_name] = nyu40_name
+    return raw2scannet
 
-def collect_one_scene_data_label(scene_name, out_filename):
+def collect_one_scene_data_label(scene_name, scene_folder):
     # Over-segmented segments: maps from segment to vertex/point IDs
-    data_folder = os.path.join(CONF.SCANNET_DIR, scene_name)
-    mesh_seg_filename = os.path.join(data_folder, '%s_vh_clean_2.0.010000.segs.json'%(scene_name))
+    mesh_seg_filename = os.path.join(scene_folder, '%s_vh_clean_2.0.010000.segs.json'%(scene_name))
     #print mesh_seg_filename
     with open(mesh_seg_filename) as jsondata:
         d = json.load(jsondata)
@@ -25,14 +37,14 @@ def collect_one_scene_data_label(scene_name, out_filename):
         segid_to_pointid[seg[i]].append(i)
     
     # Raw points in XYZRGBA
-    ply_filename = os.path.join(data_folder, '%s_vh_clean_2.ply' % (scene_name))
+    ply_filename = os.path.join(scene_folder, '%s_vh_clean_2.ply' % (scene_name))
     points = read_ply_xyzrgbnormal(ply_filename)
     
     # Instances over-segmented segment IDs: annotation on segments
     instance_segids = []
     labels = []
     # annotation_filename = os.path.join(data_folder, '%s.aggregation.json'%(scene_name))
-    annotation_filename = os.path.join(data_folder, '%s_vh_clean.aggregation.json'%(scene_name))
+    annotation_filename = os.path.join(scene_folder, '%s_vh_clean.aggregation.json'%(scene_name))
     #print annotation_filename
     with open(annotation_filename) as jsondata:
         d = json.load(jsondata)
@@ -70,19 +82,33 @@ def collect_one_scene_data_label(scene_name, out_filename):
         choices = np.random.choice(data.shape[0], NUM_MAX_PTS, replace=False)
         data = data[choices]
 
-    print("shape of subsampled scene data: {}".format(data.shape))
-    np.save(out_filename, data)
+    return data
 
-if __name__=='__main__':
-    os.makedirs(CONF.PREP_SCANS, exist_ok=True)
-    
-    for i, scene_name in enumerate(CONF.SCENE_NAMES):
+@hydra.main('../config/config.yaml')
+def main(cfg):
+    hparams = hydra_params_to_dotdict(cfg)
+    print(hparams)
+    exit(0)
+    os.makedirs(hparams['paths.scannet_preped'], exist_ok=True)
+    global CLASS_NAMES 
+    global RAW2SCANNET
+    global NUM_MAX_PTS 
+    CLASS_NAMES = hparams['nyu_40_labels']
+    RAW2SCANNET = get_raw2scannet_label_map(hparams)
+    NUM_MAX_PTS = 100000
+    scene_list = get_scene_list(hparams['paths.scannet_scans_dir'])
+    for scene_id in enumerate(scene_list):
         try:
-            start = time.time()
-            out_filename = scene_name+'.npy' # scene0000_00.npy
-            collect_one_scene_data_label(scene_name, os.path.join(CONF.PREP_SCANS, out_filename))
+            out_filename = scene_id + '.npy' # scene0000_00.npy
+            out_filename = os.path.join(hparams['paths.scannet_preped'], out_filename)
+            data = collect_one_scene_data_label(scene_id, os.path.join(hparams['paths.scannet_scans_dir'], scene_id))
+            print("shape of subsampled scene data: {}".format(data.shape))
+            np.save(out_filename, data)
 
         except Exception as e:
-            print(scene_name+'ERROR!!')
+            print(scene_id+'ERROR!!')
 
     print("done!")
+
+if __name__=='__main__':
+    main()

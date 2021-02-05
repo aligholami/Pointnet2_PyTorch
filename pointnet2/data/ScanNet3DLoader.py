@@ -1,15 +1,10 @@
-import os
-import sys
 import time
 import h5py
 import torch
 import numpy as np
-import multiprocessing as mp
 from tqdm import tqdm
-from prefetch_generator import background
 
-
-class ScannetDataset():
+class ScanNet3DDataset():
     def __init__(self, hparams, phase, scene_list, transforms, num_classes=21, npoints=8192, is_weighting=True, use_multiview=False, use_color=False, use_normal=False):
         self.hparams = hparams
         self.phase = phase

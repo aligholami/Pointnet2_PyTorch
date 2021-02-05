@@ -14,6 +14,7 @@ from pointnet2.models.common.pointnet2_ssg_cls import *
 
 class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
     def __init__(self, hparams):
+        super().__init__(hparams)
         self.hparams = hparams
         self._build_model()
 
@@ -72,6 +73,8 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
                 Each point in the point-cloud MUST
                 be formated as (x, y, z, features...)
         """
+        print("Im here!!!!!!!")
+        exit(0)
         xyz, features = self._break_up_pc(pointcloud)
 
         for module in self.SA_modules:
@@ -115,7 +118,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
 
         return reduced_outputs
 
-    def get_scene_list(ds_path):
+    def get_scene_list(self, ds_path):
         all_samples = json.load(open(ds_path))
         scene_ids = []
         for sample in all_samples:
@@ -173,8 +176,8 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
 
         self.train_dset = ScanNet3DDataset(
                 hparams=self.hparams, 
-                train='train',
-                scene_list=self.get_scene_list(self.hparams['path.scannet_train_json']),
+                phase='train',
+                scene_list=self.get_scene_list(self.hparams['paths.train_split_json']),
                 transforms=train_transforms, 
                 num_classes=21, 
                 is_weighting=True,
@@ -186,8 +189,8 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
 
         self.val_dset = ScanNet3DDataset(
                 hparams=self.hparams, 
-                train='val',
-                scene_list=self.get_scene_list(self.hparams['path.scannet_val_json']),
+                phase='val',
+                scene_list=self.get_scene_list(self.hparams['paths.val_split_json']),
                 transforms=None, 
                 num_classes=21,
                 is_weighting=True,
