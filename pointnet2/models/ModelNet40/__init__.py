@@ -1,0 +1,1 @@
+from .cls_ssg import ModelNet40PointNet2ClassificationSSG

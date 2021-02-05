@@ -1,3 +1,3 @@
 task_data_model:
-    class: pointnet2.models.Indoor3D.PointNet2SemSegMSG
+    class: pointnet2.models.Indoor3D.ScanNet3DPointNet2SemSegSSG
     name: sem-indoor3d-msg

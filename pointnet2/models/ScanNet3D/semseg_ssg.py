@@ -1,84 +1,16 @@
 import pytorch_lightning as pl
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim.lr_scheduler as lr_sched
-from pointnet2_ops.pointnet2_modules import PointnetFPModule, PointnetSAModule
-from torch.utils.data import DataLoader, DistributedSampler
-from torchvision import transforms
 import json
-
-import pointnet2.data.data_utils as d_utils
+import torch.nn as nn
+from pointnet2_ops.pointnet2_modules import PointnetFPModule, PointnetSAModule
+from torch.utils.data import DataLoader
 from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
+from pointnet2.models.common.pointnet2_ssg_sem import PointNet2SemSegSSG
 from pointnet2.models.common.pointnet2_ssg_cls import *
 
-class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
+class ScanNet3DPointNet2SemSegSSG(PointNet2SemSegSSG):
     def __init__(self, hparams):
         super().__init__(hparams)
-        self.hparams = hparams
-        self._build_model()
-
-    def _build_model(self):
-        self.SA_modules = nn.ModuleList()
-        self.SA_modules.append(
-            PointnetSAModule(
-                npoint=512,
-                radius=0.2,
-                nsample=64,
-                mlp=[3, 64, 64, 128],
-                use_xyz=self.hparams["model.use_xyz"],
-            )
-        )
-        self.SA_modules.append(
-            PointnetSAModule(
-                npoint=128,
-                radius=0.4,
-                nsample=64,
-                mlp=[128, 128, 128, 256],
-                use_xyz=self.hparams["model.use_xyz"],
-            )
-        )
-        self.SA_modules.append(
-            PointnetSAModule(
-                mlp=[256, 256, 512, 1024], use_xyz=self.hparams["model.use_xyz"]
-            )
-        )
-
-        self.fc_layer = nn.Sequential(
-            nn.Linear(1024, 512, bias=False),
-            nn.BatchNorm1d(512),
-            nn.ReLU(True),
-            nn.Linear(512, 256, bias=False),
-            nn.BatchNorm1d(256),
-            nn.ReLU(True),
-            nn.Dropout(0.5),
-            nn.Linear(256, 40),
-        )
-
-    def _break_up_pc(self, pc):
-        xyz = pc[..., 0:3].contiguous()
-        features = pc[..., 3:].transpose(1, 2).contiguous() if pc.size(-1) > 3 else None
-
-        return xyz, features
-
-    def forward(self, pointcloud):
-        r"""
-            Forward pass of the network
-
-            Parameters
-            ----------
-            pointcloud: Variable(torch.cuda.FloatTensor)
-                (B, N, 3 + input_channels) tensor
-                Point cloud to run predicts on
-                Each point in the point-cloud MUST
-                be formated as (x, y, z, features...)
-        """
-        xyz, features = self._break_up_pc(pointcloud)
-
-        for module in self.SA_modules:
-            xyz, features = module(xyz, features)
-
-        return self.fc_layer(features.squeeze(-1))
 
     def training_step(self, batch, batch_idx):
         pc, labels, _, _ = batch
@@ -96,9 +28,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
         pc, labels, _, _ = batch
         logits = self.forward(pc)
         loss = F.cross_entropy(logits, labels)
-        
         acc = (torch.argmax(logits, dim=1) == labels).float().mean()
-
         return dict(val_loss=loss, val_acc=acc)
 
     def validation_end(self, outputs):
@@ -182,7 +112,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
                 npoints=8192,
                 use_multiview=False,
                 use_color=True,
-                use_normal=False
+                use_normal=True
         )
 
         self.val_dset = ScanNet3DDataset(
@@ -195,7 +125,7 @@ class ScanNet3DPointNet2ClassificationSSG(PointNet2ClassificationSSG):
                 npoints=8192,
                 use_multiview=False,
                 use_color=True,
-                use_normal=False
+                use_normal=True
         )
 
     def _build_dataloader(self, dset, mode):

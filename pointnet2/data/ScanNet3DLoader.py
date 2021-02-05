@@ -62,7 +62,7 @@ class ScanNet3DDataset():
         point_set = scene_data[:, :3] # include xyz by default
         rgb = scene_data[:, 3:6] / 255. # normalize the rgb values to [0, 1]
         normal = scene_data[:, 6:9]
-        label = scene_data[:, 10].astype(np.int32)
+        label = scene_data[:, 10].astype(np.int32)  # currently performing semantic segmentation
 
         if self.transforms is not None:
             point_set = self.transforms(point_set)
@@ -86,7 +86,7 @@ class ScanNet3DDataset():
 
         fetch_time = time.time() - start
 
-        return point_set, label, sample_weight, fetch_time
+        return point_set.astype('float32'), label.astype('long'), sample_weight, fetch_time
 
     def __len__(self):
         return len(self.scene_list)
@@ -94,6 +94,7 @@ class ScanNet3DDataset():
     def generate_chunks(self):
         """
             note: must be called before training
+            a 3x3x3 cube space.
         """
 
         print("generate new chunks for {}...".format(self.phase))
