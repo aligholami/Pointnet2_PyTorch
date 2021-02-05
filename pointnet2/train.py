@@ -3,7 +3,7 @@ import os
 import hydra
 import pytorch_lightning as pl
 import torch
-from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning import loggers as pl_loggers
 from pointnet2.utils.common import hydra_params_to_dotdict
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
@@ -12,7 +12,7 @@ torch.backends.cudnn.benchmark = True
 @hydra.main("config/config.yaml")
 def main(cfg):
     model = hydra.utils.instantiate(cfg.task_data_model, hydra_params_to_dotdict(cfg))
-    early_stop_callback = pl.callbacks.EarlyStopping(patience=5)
+    early_stop_callback = pl.callbacks.EarlyStopping(patience=10)
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         monitor="val_acc",
         mode="max",
@@ -22,12 +22,14 @@ def main(cfg):
         ),
         verbose=True,
     )
+    tb_logger = pl_loggers.TensorBoardLogger('logs/', name=cfg['exp_name'])
     trainer = pl.Trainer(
         gpus=list(cfg.gpus),
         max_epochs=cfg.epochs,
         early_stop_callback=early_stop_callback,
         checkpoint_callback=checkpoint_callback,
         distributed_backend=cfg.distrib_backend,
+        logger=tb_logger
     )
 
     trainer.fit(model)

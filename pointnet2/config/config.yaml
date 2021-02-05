@@ -17,5 +17,5 @@ optimizer: ???
 task_data_model: ???
 
 model: ???
-
+exp_name: name
 distrib_backend: dp

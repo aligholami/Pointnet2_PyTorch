@@ -7,5 +7,5 @@ optimizer:
     decay_step: 3e5
 
 num_points: 8196
-epochs: 50
-batch_size: 24
+epochs: 120
+batch_size: 16
