@@ -5,6 +5,7 @@ import torch.nn as nn
 from pointnet2_ops.pointnet2_modules import PointnetFPModule, PointnetSAModule
 from torch.utils.data import DataLoader
 from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
+from pointnet2.utils.common import compute_acc
 from pointnet2.models.common.pointnet2_ssg_sem import PointNet2SemSegSSG
 from pointnet2.models.common.pointnet2_ssg_cls import *
 
@@ -25,11 +26,30 @@ class ScanNet3DPointNet2SemSegSSG(PointNet2SemSegSSG):
         return dict(loss=loss, log=log, progress_bar=dict(train_acc=acc))
 
     def validation_step(self, batch, batch_idx):
-        pc, labels, _, _ = batch
+        pc, labels, pc_weights, _ = batch
         logits = self.forward(pc)
+        preds = torch.argmax(logits, dim=1)
         loss = F.cross_entropy(logits, labels)
-        acc = (torch.argmax(logits, dim=1) == labels).float().mean()
-        return dict(val_loss=loss, val_acc=acc)
+        acc = (preds == labels).float().mean()
+
+        coords = pc.view(-1, 9).cpu().numpy()            # (B * N, 3)   -> 3 should be dependent on the features
+        preds = logits.max(1)[1].view(-1).cpu().numpy()       # (B * N)
+        targets = labels.view(-1).cpu().numpy()             # (B * N)
+        weights = pc_weights.view(-1).cpu().numpy()             # (B * N)
+
+        pointacc, pointacc_per_class, voxacc, voxacc_per_class, voxcaliacc, mask = compute_acc(
+            coords=coords,
+            preds=preds,
+            targets=targets,
+            weights=weights
+        )
+
+        return dict(
+            val_loss=loss, 
+            val_acc=acc,
+            point_acc=torch.tensor(pointacc.astype('float32')),
+            voxel_accuracy=torch.tensor(voxacc.astype('float32'))
+        )
 
     def validation_end(self, outputs):
         reduced_outputs = {}

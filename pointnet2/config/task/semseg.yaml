@@ -8,4 +8,4 @@ optimizer:
 
 num_points: 8196
 epochs: 120
-batch_size: 16
+batch_size: 32

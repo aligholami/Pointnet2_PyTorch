@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/local-scratch/anaconda3/envs/kepler/bin/python"
+    "python.pythonPath": "/local-scratch/anaconda3/envs/kepler/bin/python",
+    "python.analysis.extraPaths": ["../"]
 }
