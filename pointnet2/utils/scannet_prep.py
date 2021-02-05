@@ -1,5 +1,6 @@
 from pointnet2.utils.common import *
 from pointnet2.utils.ptc import read_ply_xyzrgbnormal
+from tqdm import tqdm
 import numpy as np
 import hydra
 import json
@@ -10,7 +11,7 @@ def get_raw2scannet_label_map(hparams):
     lines = lines[1:]
     raw2scannet = {}
     for i in range(len(lines)):
-        label_classes_set = set(hparams['labels.nyu_40'])
+        label_classes_set = set(get_nyu_40_class_list())
         elements = lines[i].split('\t')
         # raw_name = elements[0]
         # nyu40_name = elements[6]
@@ -87,22 +88,21 @@ def collect_one_scene_data_label(scene_name, scene_folder):
 @hydra.main('../config/config.yaml')
 def main(cfg):
     hparams = hydra_params_to_dotdict(cfg)
-    print(hparams)
-    exit(0)
     os.makedirs(hparams['paths.scannet_preped'], exist_ok=True)
     global CLASS_NAMES 
     global RAW2SCANNET
     global NUM_MAX_PTS 
-    CLASS_NAMES = hparams['nyu_40_labels']
+    CLASS_NAMES = get_nyu_40_class_list()
     RAW2SCANNET = get_raw2scannet_label_map(hparams)
     NUM_MAX_PTS = 100000
+
     scene_list = get_scene_list(hparams['paths.scannet_scans_dir'])
-    for scene_id in enumerate(scene_list):
+    for scene_id in tqdm(scene_list):
         try:
             out_filename = scene_id + '.npy' # scene0000_00.npy
             out_filename = os.path.join(hparams['paths.scannet_preped'], out_filename)
             data = collect_one_scene_data_label(scene_id, os.path.join(hparams['paths.scannet_scans_dir'], scene_id))
-            print("shape of subsampled scene data: {}".format(data.shape))
+            # print("shape of subsampled scene data: {}".format(data.shape))
             np.save(out_filename, data)
 
         except Exception as e:

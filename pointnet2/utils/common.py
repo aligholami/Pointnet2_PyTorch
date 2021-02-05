@@ -18,3 +18,28 @@ def hydra_params_to_dotdict(hparams):
 
 def get_scene_list(scans_dir):
     return [item for item in os.listdir(scans_dir) if 'scene' in item]
+
+def get_nyu_40_class_list():
+    nyu40 = [
+        'floor', 
+        'wall', 
+        'cabinet', 
+        'bed', 
+        'chair', 
+        'sofa', 
+        'table', 
+        'door', 
+        'window', 
+        'bookshelf', 
+        'picture', 
+        'counter', 
+        'desk', 
+        'curtain', 
+        'refrigerator', 
+        'bathtub', 
+        'shower curtain', 
+        'toilet', 
+        'sink', 
+        'otherprop'
+    ]
+    return nyu40

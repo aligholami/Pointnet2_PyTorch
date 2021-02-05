@@ -5,27 +5,3 @@ paths:
     scannet_v2_labels_tsv: '/datasets/released/scannet/public/v2/scannet-labels.combined.tsv'
     scannet_preped: '/local-scratch/kepler/resources/preped_scenes'
     scannetv2_npy: '/local-scratch/kepler/resources/preped_scenes/{}.npy'
-
-labels:
-    nyu_40: [
-        'floor', 
-        'wall', 
-        'cabinet', 
-        'bed', 
-        'chair', 
-        'sofa', 
-        'table', 
-        'door', 
-        'window', 
-        'bookshelf', 
-        'picture', 
-        'counter', 
-        'desk', 
-        'curtain', 
-        'refrigerator', 
-        'bathtub', 
-        'shower curtain', 
-        'toilet', 
-        'sink', 
-        'otherprop'
-    ]
