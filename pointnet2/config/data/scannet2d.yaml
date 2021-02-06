@@ -1,0 +1,7 @@
+paths:
+    train_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_train.json'
+    val_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_val.json'
+    scannet_scans_dir: '/datasets/released/scannet/public/v2/scans'
+    scannet_frame: '/local-scratch/scan2cap_extracted/render-based/renders/{}/{}-{}_{}.png' # scene_id, scene_id, object_id, ann_id
+    scannet_frame_feature: /local-scratch/scan2cap_extracted/render-based/resnet101_features/{}/{}-{}_{}' # scene_id, scene_id, object_id, ann_id
+    
