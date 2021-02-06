@@ -8,7 +8,7 @@ from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
 from pointnet2.utils.common import compute_acc
 from pointnet2.models.common.pointnet2_ssg_sem import PointNet2SemSegSSG
 from pointnet2.models.common.pointnet2_ssg_cls import *
-
+from pointnet2.utils.common import get_nyu_40_class_list
 class ScanNet3DPointNet2SemSegSSG(PointNet2SemSegSSG):
     def __init__(self, hparams):
         super().__init__(hparams)
@@ -44,11 +44,14 @@ class ScanNet3DPointNet2SemSegSSG(PointNet2SemSegSSG):
             weights=weights
         )
 
+        per_class_accuracy = {k: torch.tensor(pointacc_per_class[ix].astype('float32')) for ix, k in enumerate(get_nyu_40_class_list())}
+        
         return dict(
             val_loss=loss, 
             val_acc=acc,
             point_acc=torch.tensor(pointacc.astype('float32')),
-            voxel_accuracy=torch.tensor(voxacc.astype('float32'))
+            voxel_accuracy=torch.tensor(voxacc.astype('float32')),
+            **per_class_accuracy
         )
 
     def validation_end(self, outputs):
@@ -127,7 +130,7 @@ class ScanNet3DPointNet2SemSegSSG(PointNet2SemSegSSG):
                 phase='train',
                 scene_list=self.get_scene_list(self.hparams['paths.train_split_json']),
                 transforms=train_transforms, 
-                num_classes=21, 
+                num_classes=21,
                 is_weighting=True,
                 npoints=8192,
                 use_multiview=False,

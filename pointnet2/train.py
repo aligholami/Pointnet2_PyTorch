@@ -15,7 +15,7 @@ def main(cfg):
     early_stop_callback = pl.callbacks.EarlyStopping(
         monitor='val_acc',
         mode='max',
-        patience=10,
+        patience=15,
         strict=True,
         verbose=False,
     )
@@ -28,11 +28,11 @@ def main(cfg):
         ),
         verbose=True,
     )
-    tb_logger = pl_loggers.TensorBoardLogger('logs/', name=cfg['exp_name'])
+    tb_logger = pl_loggers.WandbLogger(name=cfg['exp_name'])
     trainer = pl.Trainer(
         gpus=list(cfg.gpus),
         max_epochs=cfg.epochs,
-        check_val_every_n_epoch=3,
+        check_val_every_n_epoch=5,
         early_stop_callback=early_stop_callback,
         checkpoint_callback=checkpoint_callback,
         distributed_backend=cfg.distrib_backend,
