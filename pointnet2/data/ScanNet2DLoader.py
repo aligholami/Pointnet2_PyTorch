@@ -51,3 +51,13 @@ class ScanNetFrameOnlyDataset(Dataset):
         data = list(filter(lambda x: x['use'] == True, data))
 
         return data_tools.dataloader.default_collate(data)
+
+class ScanNet2DDataset(Dataset):
+    def __init__(self) -> None:
+        super().__init__()
+        
+    def __getitem__(self, index) -> T_co:
+        return super().__getitem__(index)
+
+    def __len__(self):
+        return 0

@@ -1,6 +1,7 @@
 from pointnet2.utils.ptc import point_cloud_label_to_surface_voxel_label_fast
 import numpy as np
 import omegaconf
+import json
 import os
 
 def filter_points(coords, preds, targets, weights):
@@ -83,6 +84,9 @@ def hydra_params_to_dotdict(hparams):
 def get_scene_list(scans_dir):
     return [item for item in os.listdir(scans_dir) if 'scene' in item]
 
+def get_samples_list(target_json):
+    return json.load(open(target_json))
+    
 def get_nyu_40_class_list():
     nyu40 = [
         'floor', 
