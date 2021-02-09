@@ -4,7 +4,7 @@ from pointnet2.data.ScanNet3DLoader import ScanNet3DDataset
 
 class ScanRefer3DDataset(ScanNet3DDataset):
     
-    def __init__(self, hparams, phase, scene_list, transforms, num_classes=21, npoints=8192, is_weighting=True, use_color=False, use_normal=False):
+    def __init__(self, hparams, phase, scene_list, transforms, num_classes=21, npoints=8192, is_weighting=True, use_color=False, use_normal=False, use_multiview=False):
         super().__init__(
             hparams=hparams,
             phase=phase,
@@ -29,8 +29,7 @@ class ScanRefer3DDataset(ScanNet3DDataset):
         object_id = self.sample_list[index]['object_id']
         object_name = " ".join(self.sample_list[index]["object_name"].split("_"))
         ann_id = self.sample_list[index]["ann_id"]
-
-
+        
 
     def load_scene_data(self):
         print("Loading scene data.")

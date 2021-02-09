@@ -10,7 +10,7 @@ import os
 import sys
 import datetime
 import numpy as np
-from load_scannet_data import export
+from pointnet2.preprocessing.scannet.load_scannet_data import export
 import pdb
 
 SCANNET_DIR = 'scans'

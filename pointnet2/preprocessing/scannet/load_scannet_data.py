@@ -11,7 +11,7 @@ import inspect
 import json
 import pdb
 import numpy as np
-import scannet_utils
+import pointnet2.preprocessing.scannet.scannet_utils as scanent_utils
 
 def read_aggregation(filename):
     object_id_to_segs = {}
