@@ -1,0 +1,3 @@
+task_data_model:
+    class: pointnet2.models.ScanRefer3D.retr_cosine.ScanRefer3DRetrieval
+    name: retr-scanrefer3d-cosine

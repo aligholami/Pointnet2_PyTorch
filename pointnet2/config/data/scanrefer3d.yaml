@@ -1,0 +1,7 @@
+paths:
+    train_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_train.json'
+    val_split_json: '/local-scratch/kepler/resources/quaternion/ScanRefer_filtered_val.json'
+    scannet_scans_dir: '/datasets/released/scannet/public/v2/scans'
+    scannet_v2_labels_tsv: '/datasets/released/scannet/public/v2/scannet-labels.combined.tsv'
+    scannet_preped: '/local-scratch/kepler/resources/preped_scenes'
+    scannetv2_npy: '/local-scratch/kepler/resources/preped_scenes/{}.npy'

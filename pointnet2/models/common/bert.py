@@ -8,6 +8,14 @@ class BERTEncoder(pl.LightningModule):
         super().__init__()
         self.tokenizer = BertTokenizer.from_pretrained('bert-base-uncased') # accepts both strings and list of strings as input
         self.bert_model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
+        self.fine_tune_bert = False
+
+        if self.fine_tune_bert:
+            self.bert_model.train()
+            self.session = torch.enable_grad
+        else:
+            self.bert_model.eval()
+            self.session = torch.no_grad
 
     def __test_single__(self):
         test_sequence = 'This is a BERT model. It is a nice model.'
@@ -62,16 +70,22 @@ class BERTEncoder(pl.LightningModule):
 
         print("\n[Generated Batch BERT Outputs.]")
 
-    def forward(self, batch_of_text):
+    def forward(self, text_batch: list) -> torch.Tensor:
         """
-            Takes a batch of strings with arbitrary size.
-            Returns a tensor of size [batch, ]
+            Takes a batch of text.
+            Returns a tensor of size (batch_size, sequence_length, 768).
         """
-        pass
+        tokens = self.tokenizer.batch_encode_plus(text_batch, padding=True, return_tensors="pt")
+
+        with self.session() as ss:
+            bert_outputs = self.bert_model(**tokens)
+            print("Done 1")
+            hidden_states = bert_outputs[2]
+        
+        print("Resulting hidden states: ", hidden_states)
+        exit(0)
 
 if __name__ == '__main__':
     bert_encoder = BERTEncoder()
     bert_encoder.__test_single__()
     bert_encoder.__test_batch__()
-
-    

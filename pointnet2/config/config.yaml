@@ -1,8 +1,8 @@
 #  defaults must be a list because composition is order sensitive
 defaults:
-    - task: cls
-    - data: scannet3d
-    - model: ssg
+    - task: cls # retr
+    - data: scannet3d # scanrefer3d
+    - model: ssg    # cosine
     - task_data_model: ${defaults.0.task}-${defaults.1.data}-${defaults.2.model}
     
 hydra:
