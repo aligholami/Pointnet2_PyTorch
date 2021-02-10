@@ -1,5 +1,5 @@
 import pytorch_lightning as pl
-from transformers import BertModel, BertTokenizer, PreTrainedTokenizer, AutoTokenizer
+from transformers import BertModel, BertTokenizer
 import torch
 
 class BERTEncoder(pl.LightningModule):
@@ -75,11 +75,16 @@ class BERTEncoder(pl.LightningModule):
             Takes a batch of text.
             Returns a tensor of size (batch_size, sequence_length, 768).
         """
-        tokens = self.tokenizer.batch_encode_plus(text_batch, padding=True, return_tensors="pt")
-
+        if self.on_gpu:
+            device = 'cuda:0'
+        else:
+            device = 'cpu'
+        self.bert_model.to(device)
+        tokens = self.tokenizer.batch_encode_plus(text_batch, padding=True, return_tensors="pt").to(device)
         with self.session() as ss:
             bert_outputs = self.bert_model(**tokens)
             print("Done 1")
+            exit(0)
             hidden_states = bert_outputs[2]
         
         print("Resulting hidden states: ", hidden_states)

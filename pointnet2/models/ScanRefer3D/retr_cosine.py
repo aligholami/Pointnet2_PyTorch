@@ -7,12 +7,13 @@ import json
 class ScanRefer3DRetrieval(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
+
         self.hparams = hparams
-        self.encode_captions = BERTEncoder()
+        self.bert_encoder = BERTEncoder()
 
 
     def forward(self, captions_batch):
-        self.encode_captions(captions_batch)
+        self.bert_encoder(captions_batch)
 
     def training_step(self, captions_batch, batch_idx):
         self.forward(captions_batch=captions_batch)
